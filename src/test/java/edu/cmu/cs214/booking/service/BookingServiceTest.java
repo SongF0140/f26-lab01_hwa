@@ -205,4 +205,38 @@ class BookingServiceTest {
         assertEquals(1, svc.listWaitlist(roomA).size());
         assertEquals(bob, svc.listWaitlist(roomA).get(0).user());
     }
+
+    // ---- isAvailable (Milestone 3: review of the agent's proposed change) ----
+
+    @Test
+    void isAvailableReturnsTrueWhenRoomIsFree() {
+        BookingService svc = newService();
+        svc.book(roomA, alice, new TimeInterval(540, 600)); // touches the query, no overlap
+
+        assertTrue(svc.isAvailable(roomA, new TimeInterval(600, 660)));
+    }
+
+    @Test
+    void isAvailableReturnsFalseWhenExistingOverlapsFromBefore() {
+        BookingService svc = newService();
+        svc.book(roomA, alice, new TimeInterval(540, 620)); // starts before, overlaps into [600,660)
+
+        assertFalse(svc.isAvailable(roomA, new TimeInterval(600, 660)));
+    }
+
+    @Test
+    void isAvailableReturnsFalseWhenExistingContainsInterval() {
+        BookingService svc = newService();
+        svc.book(roomA, alice, new TimeInterval(540, 780)); // fully contains [600,660)
+
+        assertFalse(svc.isAvailable(roomA, new TimeInterval(600, 660)));
+    }
+
+    @Test
+    void isAvailableReturnsFalseWhenExistingStartsInsideInterval() {
+        BookingService svc = newService();
+        svc.book(roomA, alice, new TimeInterval(630, 700)); // starts inside [600,660)
+
+        assertFalse(svc.isAvailable(roomA, new TimeInterval(600, 660)));
+    }
 }

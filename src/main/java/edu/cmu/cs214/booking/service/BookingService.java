@@ -51,7 +51,7 @@ public class BookingService {
      */
     public boolean isAvailable(Room room, TimeInterval interval) {
         for (Booking b : store.bookingsForRoom(room)) {
-            if (b.interval().start() >= interval.start() && b.interval().start() < interval.end()) {
+            if (b.interval().overlaps(interval)) {
                 return false;
             }
         }
