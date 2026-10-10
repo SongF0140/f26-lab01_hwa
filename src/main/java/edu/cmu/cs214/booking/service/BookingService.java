@@ -46,4 +46,9 @@ public class BookingService {
     public List<Booking> listBookings(Room room) {
         return store.bookingsForRoom(room);
     }
+
+    /** Returns the waitlist entries for {@code room}. */
+    public List<WaitlistEntry> listWaitlist(Room room) {
+        return store.waitlistForRoom(room);
+    }
 }
