@@ -62,7 +62,7 @@ public class BookingService {
      * booking — into a confirmed booking. Returns {@code true} when a booking was
      * cancelled.
      */
-    public boolean cancel(String bookingId) {
+    public boolean cancelBooking(String bookingId) {
         Optional<Booking> existing = store.findBooking(bookingId);
         if (existing.isEmpty()) {
             return false;

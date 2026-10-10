@@ -84,7 +84,7 @@ class BookingServiceTest {
         BookingService svc = newService();
         String id = confirmedId(svc.book(roomA, alice, new TimeInterval(600, 660)));
 
-        assertTrue(svc.cancel(id));
+        assertTrue(svc.cancelBooking(id));
 
         assertTrue(svc.listBookings(roomA).isEmpty());
     }
@@ -95,7 +95,7 @@ class BookingServiceTest {
         svc.book(roomA, alice, new TimeInterval(600, 660));
         svc.book(roomA, bob, new TimeInterval(630, 700)); // waitlisted
 
-        assertFalse(svc.cancel("no-such-id"));
+        assertFalse(svc.cancelBooking("no-such-id"));
 
         assertEquals(1, svc.listBookings(roomA).size());
         assertEquals(1, svc.listWaitlist(roomA).size());
@@ -107,7 +107,7 @@ class BookingServiceTest {
         String aliceId = confirmedId(svc.book(roomA, alice, new TimeInterval(600, 660)));
         svc.book(roomA, bob, new TimeInterval(630, 700)); // waitlisted
 
-        assertTrue(svc.cancel(aliceId));
+        assertTrue(svc.cancelBooking(aliceId));
 
         List<Booking> confirmed = svc.listBookings(roomA);
         assertEquals(1, confirmed.size());
@@ -122,7 +122,7 @@ class BookingServiceTest {
         svc.book(roomA, bob, new TimeInterval(600, 660));   // waitlisted first
         svc.book(roomA, carol, new TimeInterval(660, 700)); // waitlisted second
 
-        assertTrue(svc.cancel(aliceId));
+        assertTrue(svc.cancelBooking(aliceId));
 
         List<Booking> confirmed = svc.listBookings(roomA);
         assertEquals(1, confirmed.size());
@@ -139,7 +139,7 @@ class BookingServiceTest {
         svc.book(roomA, bob, new TimeInterval(630, 730));   // waitlisted first: still conflicts with dave
         svc.book(roomA, carol, new TimeInterval(610, 650)); // waitlisted second: fits once alice is gone
 
-        assertTrue(svc.cancel(aliceId));
+        assertTrue(svc.cancelBooking(aliceId));
 
         List<Booking> confirmed = svc.listBookings(roomA);
         assertEquals(2, confirmed.size());
@@ -156,7 +156,7 @@ class BookingServiceTest {
         svc.book(roomB, bob, new TimeInterval(600, 660));                // waitlisted for room B
         String aliceId = confirmedId(svc.book(roomA, alice, new TimeInterval(600, 660)));
 
-        assertTrue(svc.cancel(aliceId));
+        assertTrue(svc.cancelBooking(aliceId));
 
         assertTrue(svc.listBookings(roomA).isEmpty());
         assertTrue(svc.listWaitlist(roomA).isEmpty());
