@@ -164,4 +164,45 @@ class BookingServiceTest {
         assertEquals(1, svc.listWaitlist(roomB).size());
         assertEquals(bob, svc.listWaitlist(roomB).get(0).user());
     }
+
+    /**
+     * TASK.md canonical scenario: cancelling a booking promotes the waitlisted
+     * user into a confirmed booking for their interval.
+     */
+    @Test
+    void cancellingPromotesTheWaitlistedUser() {
+        BookingService svc = newService();
+        BookingResult first = svc.book(roomA, alice, new TimeInterval(600, 660));
+        Booking a = assertInstanceOf(BookingResult.Confirmed.class, first).booking();
+        assertInstanceOf(BookingResult.Waitlisted.class,
+            svc.book(roomA, bob, new TimeInterval(630, 700)));
+
+        svc.cancelBooking(a.id());
+
+        List<Booking> confirmed = svc.listBookings(roomA);
+        assertEquals(1, confirmed.size());
+        assertEquals(bob, confirmed.get(0).user());
+        assertEquals(new TimeInterval(630, 700), confirmed.get(0).interval());
+        assertTrue(svc.listWaitlist(roomA).isEmpty());
+    }
+
+    /**
+     * Guards the core invariant: if every waiter still conflicts with a remaining
+     * booking, cancel promotes nobody.
+     */
+    @Test
+    void cancellingPromotesNoOneWhenNoWaiterFits() {
+        BookingService svc = newService();
+        String aliceId = confirmedId(svc.book(roomA, alice, new TimeInterval(600, 660)));
+        svc.book(roomA, dave, new TimeInterval(700, 760)); // confirmed, stays
+        svc.book(roomA, bob, new TimeInterval(630, 730));  // waitlisted, still conflicts with dave
+
+        assertTrue(svc.cancelBooking(aliceId));
+
+        List<Booking> confirmed = svc.listBookings(roomA);
+        assertEquals(1, confirmed.size());
+        assertEquals(dave, confirmed.get(0).user());
+        assertEquals(1, svc.listWaitlist(roomA).size());
+        assertEquals(bob, svc.listWaitlist(roomA).get(0).user());
+    }
 }
